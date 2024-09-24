@@ -5,6 +5,8 @@ My primitive scripts for bundling multiple Windows commands into one.
 ## Usage
 Add this repo to path, then you can call any of the scripts below from any directory.
 
+You must have GitHub CLI and git installed and configured before using these scripts.
+
 ### `repomake`
 1. Initializes a repository,
 2. Adds everything in the current directory to stage,

@@ -16,6 +16,6 @@ You must have GitHub CLI and git installed and configured before using these scr
 
 ### `repoacp`
 Combines git
-- Add
-- Commit
+- Add all changes to stage,
+- Commit with customizable message,
 - Push

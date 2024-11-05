@@ -1,0 +1,85 @@
+#!/bin/bash
+
+# Options
+options=("apps.cansin.net" "apps2.cansin.net" "montreal.cansin.net" "Raspberry Pi w/ HomeAssistant" "Raspberry Pi w/ OctoPrint" "quit")
+
+# Function to display the menu
+print_menu() {
+    for i in "${!options[@]}"; do
+        if [ $i -eq $selected ]; then
+            echo -e "\e[1;32m*\e[0m ${options[$i]}"
+        else
+            echo "  ${options[$i]}"
+        fi
+    done
+}
+
+# Initial selected option
+selected=0
+
+# Hide the cursor
+tput civis
+
+# Trap to show the cursor on exit
+trap "tput cnorm; exit" SIGINT SIGTERM
+
+while true; do
+    clear
+    echo "Which server do you want to SSH into?"
+    print_menu
+
+    # Read user input
+    read -rsn1 input
+
+    case $input in
+        $'\x1b')
+            read -rsn2 -t 0.1 input
+            if [[ $input == "[A" ]]; then
+                ((selected--))
+                if [ $selected -lt 0 ]; then
+                    selected=$((${#options[@]} - 1))
+                fi
+            elif [[ $input == "[B" ]]; then
+                ((selected++))
+                if [ $selected -ge ${#options[@]} ]; then
+                    selected=0
+                fi
+            fi
+            ;;
+        "")
+            case ${options[$selected]} in
+                "apps.cansin.net")
+                    echo "Connecting to apps.cansin.net"
+                    ssh -i ~/.ssh/cansin@apps_cansin_net.pem cansin@apps.cansin.net
+                    break
+                    ;;
+                "apps2.cansin.net")
+                    echo "Connecting to apps2.cansin.net"
+                    ssh -i ~/.ssh/do_root_key.pem root@apps2.cansin.net
+                    break
+                    ;;
+                "montreal.cansin.net")
+                    echo "Connecting to montreal.cansin.net"
+                    ssh -i ~/.ssh/home_server_key.pem cansin@montreal.cansin.net
+                    break
+                    ;;
+                "Raspberry Pi w/ HomeAssistant")
+                    echo "Connecting to Raspberry Pi w/ HomeAssistant"
+                    ssh -i ~/.ssh/raspi_haas.pem cansin@192.168.111.237
+                    break
+                    ;;
+                "Raspberry Pi w/ OctoPrint")
+                    echo "Connecting to Raspberry Pi w/ OctoPrint"
+                    sshpass -f ~/.ssh/raspi_octopi_pw.pem ssh cansin@octopi.local
+                    break
+                    ;;
+                "quit")
+                    break
+                    ;;
+            esac
+            ;;
+    esac
+done
+
+# Show the cursor
+tput cnorm

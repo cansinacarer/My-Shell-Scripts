@@ -44,7 +44,7 @@ You must have GitHub CLI and git installed and configured before using these scr
 4. Creates a Github repo using the name of the current directory as the repo name, adds it as remote,
 5. Pushes everything to the newly created remote repo.
 
-### `repoacp`
+### `acp`
 
 Combines git
 

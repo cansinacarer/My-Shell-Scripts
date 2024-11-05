@@ -52,6 +52,8 @@ Combines git
 - Commits with customizable message,
 - Pushes.
 
-## show-hide-mounted-drives-on-ubuntu-desktop
+## Ubuntu Desktop
+
+### `show-hide-mounted-drives-on-ubuntu-desktop`
 
 Scripts to shows and hide the mounted drives on Ubuntu Desktop.

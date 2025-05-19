@@ -2,7 +2,7 @@
 setlocal
 
 @REM Initialize the repo, add everything to stage
-git init
+git init -b main
 git add .
 
 REM Prompt the user for a commit message

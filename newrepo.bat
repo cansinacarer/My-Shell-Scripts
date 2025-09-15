@@ -8,6 +8,9 @@ if "%repo_name%"=="" (
     exit /b 1
 )
 
+@REM Change to the desired base directory
+cd /d "C:\Code" || exit /b 1
+
 @REM Create a folder with the repo name
 mkdir "%repo_name%"
 if errorlevel 1 (
@@ -26,17 +29,17 @@ if errorlevel 1 (
 )
 git add .
 
-REM Commit
+@REM Commit
 git commit --allow-empty -m "first commit"
 if errorlevel 1 (
     echo Failed to commit changes. Please check your Git configuration.
     exit /b 1
 )
 
-REM Get the current directory name
+@REM Get the current directory name
 for %%I in ("%cd%") do set "repo_name=%%~nI"
 
-REM Create the GitHub repository, add it as remote, then push
+@REM Create the GitHub repository, add it as remote, then push
 gh repo create %repo_name% --private --source=. --remote=origin --push
 if errorlevel 1 (
     echo Failed to create GitHub repository. Please ensure you are authenticated with GitHub CLI.

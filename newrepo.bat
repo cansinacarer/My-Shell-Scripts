@@ -1,11 +1,17 @@
 @echo off
-setlocal
+setlocal enabledelayedexpansion
 
 @REM Read the repo name passed as an argument
-set "repo_name=%~1"
-if "%repo_name%"=="" (
-    echo No repository name provided. Please provide a name as an argument.
-    exit /b 1
+if "%~1"=="" (
+    set /p "repo_name=Enter repository name: "
+    if "!repo_name!"=="" (
+        @REM pause for 10 seconds to see the error
+        echo No repository name provided. Exiting in 10 seconds...
+        timeout /t 10 /nobreak >nul
+        exit /b 1
+    )
+) else (
+    set "repo_name=%~1"
 )
 
 @REM Change to the desired base directory

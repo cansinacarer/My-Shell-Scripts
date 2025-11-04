@@ -53,7 +53,7 @@ if errorlevel 1 (
 )
 
 @REM Open the repository in VS Code
-code .
+cursor .
 if errorlevel 1 (
     echo Failed to open the repository in VS Code. Please ensure it is installed and in your PATH.
     exit /b 1

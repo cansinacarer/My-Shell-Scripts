@@ -1,39 +1,51 @@
 #!/bin/bash
+#
+# Hetzner SSH hardening: create non-root user with SSH key access and
+# passwordless sudo, then disable root SSH login.
+#
+# Run as root on a fresh Hetzner server. Test the new user in a separate
+# terminal before disconnecting your root session.
+
+set -euo pipefail
 
 # Define the username
-USER="cansin"
+USERNAME="cansin"
 
-# Add cansin as a user without a password
-useradd -m -s /bin/bash $USER
+# Create user without a password (key-only auth, no password needed anywhere)
+adduser --disabled-password --gecos "" "$USERNAME"
+usermod -aG sudo "$USERNAME"
 
-# Give cansin sudo privileges
-usermod -aG sudo $USER
+# Copy root's SSH key to the new user
+mkdir -p "/home/$USERNAME/.ssh"
+cp /root/.ssh/authorized_keys "/home/$USERNAME/.ssh/authorized_keys"
+chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.ssh"
+chmod 700 "/home/$USERNAME/.ssh"
+chmod 600 "/home/$USERNAME/.ssh/authorized_keys"
 
-# Define the SSH key file path
-KEY_PATH="/home/$USER/.ssh/id_rsa"
+# Enable passwordless sudo for this user
+SUDOERS_FILE="/etc/sudoers.d/$USERNAME"
+echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" > "$SUDOERS_FILE"
+chmod 440 "$SUDOERS_FILE"
+visudo -cf "$SUDOERS_FILE"
 
-# Create the .ssh directory if it doesn't exist
-mkdir -p /home/$USER/.ssh
+# Harden SSH: disable root login and password auth
+HARDENING_FILE="/etc/ssh/sshd_config.d/99-hardening.conf"
+cat > "$HARDENING_FILE" <<EOF
+PermitRootLogin no
+PasswordAuthentication no
+PubkeyAuthentication yes
+EOF
+chmod 644 "$HARDENING_FILE"
 
-# Generate the SSH key pair with the correct comment
-ssh-keygen -t rsa -b 2048 -f $KEY_PATH -N "" -C "$USER@$(hostname)"
+# Validate sshd config before reloading
+sshd -t
 
-# Set the correct permissions for the .ssh directory and the key files
-chown -R $USER:$USER /home/$USER/.ssh
-chmod 700 /home/$USER/.ssh
-chmod 600 $KEY_PATH
-chmod 644 ${KEY_PATH}.pub
+# Reload sshd to apply changes
+systemctl reload ssh
 
-# Add the public key to the authorized_keys file
-cat ${KEY_PATH}.pub >> /home/$USER/.ssh/authorized_keys
-chmod 600 /home/$USER/.ssh/authorized_keys
-
-# Print the generated key pair
-echo -e "\n\nPrivate Key:"
-cat $KEY_PATH
-echo -e "\n\nPublic Key:"
-cat ${KEY_PATH}.pub
-
-echo -e "\n\nDo not forget to run chmod 600 /home/cansin/.ssh/KEYNAME.ppk on your device to be able to use this key!"
-
-echo -e "\n\nSSH key pair created for user $USER at $KEY_PATH"
+echo ""
+echo "Done. Before closing this root session, open a new terminal and verify:"
+echo "  ssh $USERNAME@<server-ip>"
+echo "  sudo whoami    # should print 'root' with no password prompt"
+echo ""
+echo "Once confirmed, run the user script as your new user."

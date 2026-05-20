@@ -4,25 +4,48 @@ My scripts for bundling multiple commands into one on Windows and Linux.
 
 ## new-server-initialization
 
-Contains the scripts for quickly setting up a new Ubuntu server:
+Contains the scripts for quickly setting up a new Ubuntu server.
 
-- `new-server-root-scripts.sh`:
-  - Creates a user without a password, with sudo privilages, without password requirement when sudo command is used.
-  - Creates an SSH key for the user.
-- `new-server-user-scripts.sh`:
-  - Disables root login and login with password,
-  - Configures memory swap,
-  - Sets up the server time zone, configure time sync,
-  - Installs and configures:
-    - Automatic system security updates,
-    - Firewall: UFW,
-    - SSH brute force protection: Fail2ban,
-    - Anti-malware and their cron jobs:
-      - ClamAV,
-      - Rootkit hunter,
-      - Lynis,
-    - Docker,
-    - CapRover.
+### `new-server-root-scripts.sh`:
+
+curl-pipe-bash one-liner:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/cansinacarer/My-Shell-Scripts/refs/heads/main/new-server-initialization/new-server-root-scripts.sh | sudo bash
+```
+
+This script assumes we created a new instance with an ssh key selected on Hetzner or similar, which is by default used to ssh in with root.
+
+Running this script as root:
+
+- Creates a user without a password, with sudo privileges and no password prompt for sudo commands.
+- Copies root's authorized SSH keys to the new user so they can log in immediately.
+- Disables root SSH login and password authentication via a drop-in sshd config.
+- Validates the sshd config and reloads the SSH service.
+
+To confirm that the new user can ssh in with the same key and run sudo commands:
+
+```sh
+ssh cansin@<server-ip>
+sudo whoami # should print 'root'
+```
+
+### `new-server-user-scripts.sh`:
+
+curl-pipe-bash one-liner:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/cansinacarer/My-Shell-Scripts/refs/heads/main/new-server-initialization/new-server-user-scripts.sh | sudo bash
+```
+
+Running this script as the newly created user:
+
+- Wipes root's SSH authorized_keys (confirming the new user works).
+- Sets timezone and installs basic utilities.
+- Creates an 8GB swap file with tuned swappiness and cache pressure.
+- Installs fail2ban, ufw firewall (with Coolify ports open).
+- Sets up unattended-upgrades.
+- Runs the Coolify installer (which handles Docker setup itself).
 
 ## SSH
 

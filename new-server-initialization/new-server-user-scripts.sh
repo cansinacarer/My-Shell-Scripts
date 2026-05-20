@@ -103,9 +103,12 @@ sudo ufw reload
 
 #### AUTOMATIC SECURITY UPDATES ####
 
+# Pre-seed postfix to skip config dialog (it gets pulled in as a dependency)
+echo "postfix postfix/main_mailer_type select No configuration" | sudo debconf-set-selections
+
 # Install and configure unattended-upgrades
-sudo apt-get -y install unattended-upgrades
-sudo dpkg-reconfigure --priority=low unattended-upgrades
+sudo DEBIAN_FRONTEND=noninteractive apt-get -y install unattended-upgrades
+sudo dpkg-reconfigure --priority=high unattended-upgrades
 
 
 

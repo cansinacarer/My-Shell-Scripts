@@ -31,7 +31,7 @@ visudo -cf "$SUDOERS_FILE"
 # Harden SSH: disable root login and password auth
 HARDENING_FILE="/etc/ssh/sshd_config.d/99-hardening.conf"
 cat > "$HARDENING_FILE" <<EOF
-PermitRootLogin no
+PermitRootLogin prohibit-password
 PasswordAuthentication no
 PubkeyAuthentication yes
 EOF

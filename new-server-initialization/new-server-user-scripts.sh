@@ -117,9 +117,14 @@ sudo dpkg-reconfigure --priority=high unattended-upgrades
 # Coolify's installer handles Docker installation automatically
 curl -fsSL https://cdn.coollabs.io/coolify/install.sh | sudo bash
 
+# Add current user to docker group so we can run docker commands without sudo
+sudo usermod -aG docker "$USER"
 
 
 echo ""
 echo "Setup complete."
 echo ""
-echo "Next step: open the Coolify dashboard at http://<server-ip>:8000"
+echo "Next steps:"
+echo "  - Log out and back in for docker group membership to take effect."
+echo "  - Open the Coolify dashboard: http://<server-ip>:8000"
+echo ""
